@@ -4,7 +4,7 @@
  * Fixed on purpose: the point is to see where YOUR sentence lands relative to a stable
  * backdrop. A corpus that changed between runs would make every position meaningless.
  *
- * Grouped so the map has visible structure to check against — if related words do not
+ * Grouped so the map has visible structure to check against - if related words do not
  * cluster, the projection is lying.
  */
 export const CORPUS: { word: string; group: string }[] = [

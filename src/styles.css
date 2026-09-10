@@ -1,41 +1,91 @@
 @import "./theme/palette.css";
 @import "./theme/base.css";
+@import "./theme/layout-flat.css";
+@import "./theme/motion.css";
+@import "./theme/texture.css";
+@import "./theme/type.css";
 
-.tagline { color: var(--dim); margin-top: 8px; max-width: 62ch; }
-.privacy {
-  margin-top: 14px; display: inline-flex; gap: 8px; align-items: center;
-  font-size: 12.5px; color: var(--accent-2);
-  border: 1px solid var(--accent-2); padding: 7px 13px; border-radius: 999px;
-}
+/* Sections are already told apart by the space between them and by a heading in a
+   different voice, so the rule sitting in that space was drawing a boundary the reader
+   had before it arrived. Worse, at this weight it looked like one more input underline.
+   The space it used to divide is kept, and pushed a little further. */
+.panel + .panel { border-top: 0; padding-top: 0; margin-top: 84px; }
+
+/* A line of prose stops before the eye starts losing its place on the way back to the
+   left margin. Nothing here is meant to be read across a full window. */
+.tagline, .note, .err { max-width: 64ch; }
+
+/* The one sentence that has to be read, so it is the size of one. Hierarchy from type,
+   not from a box or a second colour. */
+.tagline { font-size: var(--step-1); line-height: 1.45; margin-top: 4px; }
+
+/* Fine print, set as fine print. An outlined badge claims more of the page than a list
+   of reassurances is worth, and an outline should be reserved for the thing you act on. */
+.assurance { margin-top: 18px; font-size: 12.5px; color: var(--dim); }
+
 h1 span { color: var(--accent); }
 
-/* One token. The id underneath is what makes the count explicable. */
-.toks { display: flex; flex-wrap: wrap; gap: 5px; }
+/* The sentence being taken apart is the subject of the page, so it is set at the size of
+   one and it is the thing the eye lands on after the heading. The comparison line is a
+   second, optional question, and its rule is quieter to say so: two identical full-width
+   underlines read as a form to fill in rather than as one place to type. */
+input.subject { font-size: var(--step-2); padding: 12px 2px; }
+input.against {
+  max-width: 470px; margin-top: 30px;
+  border-bottom-color: color-mix(in srgb, var(--edge) 45%, transparent);
+}
+/* The browser default is a grey from outside the palette. */
+::placeholder { color: var(--dim); opacity: 1; }
+
+/* One token, with the id underneath that makes the count explicable.
+
+   Filled, not outlined: fifty little rectangles in a row turns into a grid of borders,
+   and a fill already says where one piece ends and the next begins. */
+.toks { display: flex; flex-wrap: wrap; gap: 5px 4px; }
 .tok {
-  display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 6px 9px 5px; border-radius: calc(var(--radius) - 6px);
-  border: 1px solid var(--edge); background: var(--raised);
-  font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 5px 8px 4px; border-radius: 4px;
+  background: var(--raised);
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.25;
 }
-.tok.special { opacity: .5; border-style: dashed; }
-.tok.cont { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+/* Structural tokens came from the tokenizer rather than from the typing, so they sit
+   back off the surface instead of being called out with a second border style. */
+.tok.special { background: none; color: var(--dim); }
+.tok.cont { background: color-mix(in srgb, var(--accent) 22%, var(--raised)); }
 .tok .id { font-size: 9.5px; color: var(--dim); font-variant-numeric: tabular-nums; }
-.tok .lead { color: var(--accent-2); }
+.tok .lead { color: var(--accent); }
 
-.map { width: 100%; border-radius: var(--radius); border: 1px solid var(--edge); background: var(--panel); display: block; }
-.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 12px; color: var(--dim); }
-.legend b { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+/* A frame around a scatter plot repeats the edge the points already describe, and a
+   panel fill lifts it off a page that has no other panels on it. */
+.map { display: block; width: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 16px; font-size: 12px; color: var(--dim); }
+.legend b { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
 
-.stat { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 14px; }
-.stat div b { display: block; font-size: 21px; font-variant-numeric: tabular-nums; }
-.stat div span { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .6px; }
+/* The counts are the payoff of the panel above them, so they are the largest thing in
+   it. Weight is left alone: Chivo at 500 stays readable where 700 would go blocky. */
+.stat { display: flex; gap: 14px 40px; flex-wrap: wrap; margin-top: 28px; }
+.stat div b { display: block; font-size: 30px; font-weight: 500; line-height: 1.1; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+.stat div span { font-size: 10.5px; color: var(--dim); text-transform: uppercase; letter-spacing: .7px; }
 
-.presets { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
-.presets button { font-size: 12.5px; min-height: 36px; padding: 6px 12px; }
+/* layout-flat gives every button a right margin so a row of text buttons does not run
+   together. Inside a flex row that margin lands on top of the gap, which is why the
+   spacing is set here in one place instead. */
+.presets { display: flex; flex-wrap: wrap; gap: 0 22px; margin-top: 6px; }
+.presets button { font-size: 12.5px; min-height: 34px; padding: 6px 0; margin-right: 0; }
 
-.bar {
-  position: relative; height: 40px; border-radius: calc(var(--radius) - 4px);
-  background: var(--bg); overflow: hidden; border: 1px solid var(--edge);
+/* The figure carries the value. The track only says where it falls between 0 and 1, so
+   it is a rule rather than a container with a number parked inside it. */
+.simval { font-size: 44px; font-weight: 500; line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.bar { position: relative; height: 4px; max-width: 520px; margin-top: 14px; border-radius: 999px; background: var(--raised); overflow: hidden; }
+.bar > i { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+
+/* Left alone, this is a lozenge in another operating system's grey, which is the one
+   element on the page that would not belong to it. */
+progress {
+  appearance: none; -webkit-appearance: none;
+  display: block; width: 260px; height: 4px; margin-top: 10px;
+  border: 0; border-radius: 999px; background: var(--raised); overflow: hidden;
 }
-.bar > i { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: .3; }
-.bar > span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; font-size: 13.5px; }
+progress::-webkit-progress-bar { background: var(--raised); }
+progress::-webkit-progress-value { background: var(--accent); }
+progress::-moz-progress-bar { background: var(--accent); }

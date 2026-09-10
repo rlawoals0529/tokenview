@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CORPUS, GROUPS, groupColour } from "./lib/corpus.js";
 import { pca2, fit } from "./lib/pca.js";
 import { labelWidth, placeLabels } from "./lib/labels.js";
+import { Ticker, stagger } from "./lib/motion.js";
 import type { Token, Progress } from "./lib/model.js";
 
 const PRESETS: { label: string; text: string; why: string }[] = [
@@ -134,13 +135,18 @@ export default function App() {
         Type a sentence and watch it turn into the pieces a language model actually reads, then
         watch its meaning land on a map beside eighty reference words.
       </p>
-      <div className="privacy">
+      <p className="assurance">
         Runs entirely in your browser · no API key · nothing uploaded · works offline once cached
-      </div>
+      </p>
 
       <section className="panel">
-        <h2>Your text</h2>
-        <input type="text" value={text} onChange={(e) => setText(e.target.value)} aria-label="Text to analyse" />
+        <input
+          type="text"
+          className="subject"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          aria-label="Text to analyse"
+        />
         <div className="presets">
           {PRESETS.map((p) => (
             <button key={p.label} title={p.why} onClick={() => setText(p.text)}>
@@ -148,16 +154,14 @@ export default function App() {
             </button>
           ))}
         </div>
-        <div className="row" style={{ marginTop: 14 }}>
-          <input
-            type="text"
-            value={compare}
-            onChange={(e) => setCompare(e.target.value)}
-            aria-label="Compare against"
-            placeholder="compare against…"
-            style={{ flex: 1, minWidth: 240 }}
-          />
-        </div>
+        <input
+          type="text"
+          className="against"
+          value={compare}
+          onChange={(e) => setCompare(e.target.value)}
+          aria-label="Compare against"
+          placeholder="compare against…"
+        />
         <div className="row" style={{ marginTop: 14 }}>
           {!ready ? (
             <button className="primary" onClick={start} disabled={!!busy}>
@@ -168,9 +172,13 @@ export default function App() {
               Analyse
             </button>
           )}
-          <span className="note" style={{ margin: 0 }}>
-            {ready ? "Model ready." : "~23 MB, fetched once and cached."}
-          </span>
+          {/* Once the model is in, the button says Analyse and there is nothing left for
+              a line of text beside it to add. */}
+          {!ready && (
+            <span className="note" style={{ margin: 0 }}>
+              ~23 MB, fetched once and cached.
+            </span>
+          )}
         </div>
         {busy && (
           <div style={{ marginTop: 12 }}>
@@ -191,7 +199,8 @@ export default function App() {
             {tokens.map((t, i) => (
               <span
                 key={i}
-                className={`tok${t.special ? " special" : ""}${t.continuation ? " cont" : ""}`}
+                className={`tok rise${t.special ? " special" : ""}${t.continuation ? " cont" : ""}`}
+                style={stagger(i, 14, 260)}
                 title={t.continuation ? "A continuation of the previous word" : t.special ? "Structural token" : t.raw}
               >
                 <span>
@@ -203,15 +212,15 @@ export default function App() {
             ))}
           </div>
           <div className="stat">
-            <div><b>{counts.tokens}</b><span>tokens</span></div>
-            <div><b>{counts.real}</b><span>without structural</span></div>
-            <div><b>{counts.words}</b><span>words</span></div>
-            <div><b>{counts.chars}</b><span>characters</span></div>
-            <div><b>{counts.perWord.toFixed(2)}</b><span>tokens per word</span></div>
+            <div><b><Ticker value={counts.tokens} /></b><span>tokens</span></div>
+            <div><b><Ticker value={counts.real} /></b><span>without structural</span></div>
+            <div><b><Ticker value={counts.words} /></b><span>words</span></div>
+            <div><b><Ticker value={counts.chars} /></b><span>characters</span></div>
+            <div><b><Ticker value={counts.perWord} decimals={2} /></b><span>tokens per word</span></div>
           </div>
           <p className="note">
             Tokens marked <code>##</code> are continuations: a single word broken into pieces.
-            Dashed tokens are structural, added by the tokenizer rather than by you.
+            Faded tokens are structural, added by the tokenizer rather than by you.
           </p>
         </section>
       )}
@@ -243,7 +252,7 @@ export default function App() {
                     fill={mine ? "var(--fg)" : "var(--dim)"}
                     fontSize={mine ? 12.5 : 9.5}
                     fontWeight={mine ? 600 : 400}
-                    stroke="var(--panel)"
+                    stroke="var(--bg)"
                     strokeWidth={mine ? 3.5 : 2.5}
                     paintOrder="stroke"
                     strokeLinejoin="round"
@@ -274,13 +283,14 @@ export default function App() {
 
       {sim !== null && (
         <section className="panel">
-          <h2>Compared</h2>
+          <h2>Similarity</h2>
+          {/* The heading and the caption below both name the measure, so the track says
+              only where the value falls between 0 and 1. */}
+          <p className="simval">
+            <Ticker value={sim} decimals={3} />
+          </p>
           <div className="bar">
             <i style={{ width: `${Math.max(0, sim) * 100}%` }} />
-            <span>
-              <b>similarity</b>
-              <code>{sim.toFixed(3)}</code>
-            </span>
           </div>
           <p className="note">
             Cosine similarity between the two sentence embeddings. Near 1 means the model places
@@ -294,7 +304,8 @@ export default function App() {
         <p className="note" style={{ marginTop: 0 }}>
           The map is a projection. Two points near each other in 384 dimensions will be near each
           other here, but the reverse does not hold: things can be flattened into the same spot by
-          the projection alone. The percentage above tells you how much to trust it.
+          the projection alone. The percentage printed under the map tells you how much to
+          trust it.
         </p>
         <p className="note">
           The tokenizer shown is this model's. Another model splits text differently, so treat the
