@@ -25,7 +25,7 @@ Five presets each make one point, so there is something to learn without typing 
 | case matters | Watch the ids, not the letters |
 
 **Meaning has a shape.** Every reference word is embedded and projected to two dimensions.
-Cities land together, colours land together, dates land together — and your sentence lands
+Cities land together, colours land together, dates land together - and your sentence lands
 somewhere among them.
 
 ![The embedding map, with words clustered by meaning](docs/map.png)

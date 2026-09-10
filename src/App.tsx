@@ -8,7 +8,7 @@ const PRESETS: { label: string; text: string; why: string }[] = [
   { label: "rare words shatter", text: "antidisestablishmentarianism", why: "One word, many pieces. Cost is not words." },
   { label: "emoji are expensive", text: "ok 👍🏽 done", why: "A single glyph can be several tokens." },
   { label: "numbers split oddly", text: "1234567 and 2026", why: "Digits are grouped by frequency, not by place value." },
-  { label: "case matters", text: "Apple apple APPLE", why: "The tokenizer lowercases here — watch the ids." },
+  { label: "case matters", text: "Apple apple APPLE", why: "The tokenizer lowercases here, so watch the ids." },
 ];
 
 const MAP_H = 520;
@@ -186,7 +186,7 @@ export default function App() {
             <div><b>{counts.perWord.toFixed(2)}</b><span>tokens per word</span></div>
           </div>
           <p className="note">
-            Pink tokens marked <code>##</code> are continuations — a single word broken into pieces.
+            Pink tokens marked <code>##</code> are continuations: a single word broken into pieces.
             Dashed tokens are structural, added by the tokenizer rather than by you.
           </p>
         </section>
@@ -204,19 +204,19 @@ export default function App() {
                     cx={p.x}
                     cy={p.y}
                     r={mine ? 7 : 3.6}
-                    fill={mine ? "#fff" : groupColour(p.group)}
+                    fill={mine ? "var(--fg)" : groupColour(p.group)}
                     opacity={mine ? 1 : 0.85}
                   />
-                  {mine && <circle cx={p.x} cy={p.y} r={13} fill="none" stroke="#fff" strokeOpacity={0.45} />}
+                  {mine && <circle cx={p.x} cy={p.y} r={13} fill="none" stroke="var(--fg)" strokeOpacity={0.45} />}
                   {/* A stroke behind the fill keeps a label readable where points crowd.
                       paint-order puts the stroke underneath rather than over the glyphs. */}
                   <text
                     x={p.x + (mine ? 17 : 7)}
                     y={p.y + 3.5}
-                    fill={mine ? "#fff" : "#a6a6c0"}
+                    fill={mine ? "var(--fg)" : "var(--dim)"}
                     fontSize={mine ? 12.5 : 9.5}
                     fontWeight={mine ? 600 : 400}
-                    stroke="#0e0e16"
+                    stroke="var(--panel)"
                     strokeWidth={mine ? 3.5 : 2.5}
                     paintOrder="stroke"
                     strokeLinejoin="round"
@@ -238,7 +238,7 @@ export default function App() {
           <p className="note">
             384 dimensions squeezed into 2, so these two axes carry{" "}
             <b>{((explained[0] + explained[1]) * 100).toFixed(1)}%</b> of the variance. Most of the
-            structure is in the dimensions you cannot see — which is why two words looking close
+            structure is in the dimensions you cannot see, which is why two words looking close
             here is a hint, not a fact.
           </p>
         </section>
