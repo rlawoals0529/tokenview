@@ -20,8 +20,35 @@ export const CORPUS: { word: string; group: string }[] = [
 
 export const GROUPS = [...new Set(CORPUS.map((c) => c.group))];
 
-/** One hue per group, evenly spaced, so a legend is unnecessary to read the shape. */
+/**
+ * One colour per group, picked rather than generated.
+ *
+ * This used to walk the hue wheel in even steps at a fixed saturation and lightness. Two
+ * problems with that. It produces the full rainbow, which is the signature of a palette
+ * nobody chose. And evenly spaced hues are not evenly distinguishable: eight steps put
+ * green, lime and cyan within sixty degrees of each other, and on this map those three
+ * groups sat in the same region and could not be told apart.
+ *
+ * These are spaced by how different they look rather than by angle: the closest pair is
+ * 22 dE apart in Lab, where about 10 is the point two colours stop being confusable.
+ * Lightness varies too, but only over a range of 15, so this helps in greyscale rather
+ * than being sufficient on its own. The legend is what carries it, and the legend is
+ * why the map has one.
+ *
+ * An unknown group falls back to the foreground rather than to a colour that belongs to
+ * some other category, so a corpus change shows up as grey instead of as a wrong label.
+ */
+const GROUP_COLOURS: Record<string, string> = {
+  animals: "#e8734a",
+  colours: "#e0b23c",
+  time: "#8fbf5a",
+  computing: "#4fae8a",
+  feelings: "#5ec8d1",
+  food: "#6f9fe0",
+  actions: "#a98fd1",
+  cities: "#d96f9e",
+};
+
 export function groupColour(group: string): string {
-  const i = GROUPS.indexOf(group);
-  return `hsl(${Math.round((i / GROUPS.length) * 360)} 72% 62%)`;
+  return GROUP_COLOURS[group] ?? "var(--dim)";
 }
