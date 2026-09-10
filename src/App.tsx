@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CORPUS, GROUPS, groupColour } from "./lib/corpus.js";
 import { pca2, fit } from "./lib/pca.js";
+import { labelWidth, placeLabels } from "./lib/labels.js";
 import type { Token, Progress } from "./lib/model.js";
 
 const PRESETS: { label: string; text: string; why: string }[] = [
@@ -101,6 +102,29 @@ export default function App() {
     };
   }, [tokens, text]);
 
+  /**
+   * Which words get a name on the map.
+   *
+   * Your own point always wins, so it is never the one dropped; the rest compete on nothing but
+   * order, which keeps the map identical between two runs of the same input.
+   */
+  const labels = useMemo(() => {
+    if (!points) return [];
+    return placeLabels(
+      points.map((p) => {
+        const mine = p.group === "yours";
+        const size = mine ? 12.5 : 9.5;
+        return {
+          x: p.x + (mine ? 17 : 7),
+          y: p.y - size / 2,
+          w: labelWidth(p.word, size),
+          h: size,
+          rank: mine ? 1 : 0,
+        };
+      }),
+    );
+  }, [points]);
+
   return (
     <div className="wrap">
       <h1>
@@ -186,7 +210,7 @@ export default function App() {
             <div><b>{counts.perWord.toFixed(2)}</b><span>tokens per word</span></div>
           </div>
           <p className="note">
-            Pink tokens marked <code>##</code> are continuations: a single word broken into pieces.
+            Tokens marked <code>##</code> are continuations: a single word broken into pieces.
             Dashed tokens are structural, added by the tokenizer rather than by you.
           </p>
         </section>
@@ -198,6 +222,7 @@ export default function App() {
           <svg className="map" width={width} height={MAP_H} role="img" aria-label="Embedding map">
             {points.map((p, i) => {
               const mine = p.group === "yours";
+              const labelled = labels[i];
               return (
                 <g key={i}>
                   <circle
@@ -208,8 +233,10 @@ export default function App() {
                     opacity={mine ? 1 : 0.85}
                   />
                   {mine && <circle cx={p.x} cy={p.y} r={13} fill="none" stroke="var(--fg)" strokeOpacity={0.45} />}
-                  {/* A stroke behind the fill keeps a label readable where points crowd.
-                      paint-order puts the stroke underneath rather than over the glyphs. */}
+                  {/* A stroke behind the fill keeps a label readable where points still touch;
+                      paint-order puts the stroke underneath rather than over the glyphs. The
+                      dot is always drawn, so a dropped label loses a name, never a data point. */}
+                  {labelled && (
                   <text
                     x={p.x + (mine ? 17 : 7)}
                     y={p.y + 3.5}
@@ -223,6 +250,7 @@ export default function App() {
                   >
                     {p.word}
                   </text>
+                  )}
                 </g>
               );
             })}

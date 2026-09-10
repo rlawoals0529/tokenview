@@ -83,6 +83,6 @@ viewport, and one scale across both axes so a square stays square.
 ## Built with
 
 `Xenova/all-MiniLM-L6-v2` via [Transformers.js](https://huggingface.co/docs/transformers.js),
-WebGPU where available. React, TypeScript, Vite.
+WebGPU where an adapter is really available, WebAssembly everywhere else. React, TypeScript, Vite.
 
 MIT © James Kim

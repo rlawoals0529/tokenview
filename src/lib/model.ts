@@ -10,21 +10,45 @@ export type Progress = { status: string; progress?: number };
 
 let pipe: Promise<FeatureExtractionPipeline> | null = null;
 
+/**
+ * Whether WebGPU will actually work, asked of the adapter rather than of the namespace.
+ *
+ * This has to be settled BEFORE the model is built, not caught afterwards. Transformers.js
+ * caches a model by id, so a failed webgpu build poisons that entry and a second call asking
+ * for wasm fails with the first call's webgpu error. Probing first means only one pipeline is
+ * ever constructed, on a device already known to work.
+ */
+async function webgpuUsable(): Promise<boolean> {
+  if (typeof navigator === "undefined") return false;
+  const gpu = (navigator as Navigator & { gpu?: { requestAdapter(): Promise<unknown> } }).gpu;
+  if (!gpu) return false;
+  try {
+    return (await gpu.requestAdapter()) != null;
+  } catch {
+    return false;
+  }
+}
+
 export function load(onProgress?: (p: Progress) => void): Promise<FeatureExtractionPipeline> {
   if (!pipe) {
     pipe = (async () => {
-      // Name a device only when asking for WebGPU: the right fallback differs by
-      // environment ("wasm" in a browser, "cpu" under Node), so naming one breaks the other.
-      const hasWebGPU = typeof navigator !== "undefined" && "gpu" in navigator;
       const opts = { progress_callback: onProgress as never };
-      if (!hasWebGPU) return await pipeline("feature-extraction", MODEL, opts);
-      try {
+      if (await webgpuUsable()) {
         return await pipeline("feature-extraction", MODEL, { ...opts, device: "webgpu" });
-      } catch (e) {
-        console.warn("[tokenview] WebGPU failed, using the default backend:", e);
-        return await pipeline("feature-extraction", MODEL, opts);
       }
+      // The non-GPU device must be NAMED, and which name is valid differs by environment.
+      // In a browser transformers.js defaults to webgpu and does not fall back on its own,
+      // so omitting this is what produced "no available backend found"; under Node there is
+      // no wasm provider at all, so there the library's own default is the right one.
+      return await pipeline(
+        "feature-extraction",
+        MODEL,
+        typeof window === "undefined" ? opts : { ...opts, device: "wasm" as const },
+      );
     })();
+    // Clear a failed load, otherwise the rejected promise stays in the slot and every later
+    // attempt fails with the first attempt's error -- a dropped connection would be permanent.
+    pipe.catch(() => { pipe = null; });
   }
   return pipe;
 }
