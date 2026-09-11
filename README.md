@@ -33,7 +33,7 @@ somewhere among them.
 That clustering is the check that the projection is honest. If related words did not group,
 the map would be decoration.
 
-## Reading it honestly
+## Limitations
 
 The map says how much variance the two visible axes carry, and it is usually **under 20%**.
 Two points close together in 384 dimensions will be close here, but the reverse does not
@@ -43,7 +43,7 @@ printed so you know how much to trust what you are looking at.
 The tokenizer is this model's. Another model splits differently, so the counts illustrate how
 tokenization behaves rather than billing a specific API.
 
-## The projection is deterministic, on purpose
+## Determinism
 
 A map that reshuffles between reloads teaches that position is arbitrary, which is the
 opposite of the lesson. So the PCA starts from a fixed vector rather than a random one, and
