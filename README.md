@@ -8,6 +8,10 @@ model reads, then watch its meaning land on a map beside eighty reference words.
 **Runs entirely in your browser.** No API key, no account, no server. The model is fetched
 once and cached, after which it works offline. Nothing you type leaves the page.
 
+## Try it
+
+**[rlawoals0529.github.io/tokenview](https://rlawoals0529.github.io/tokenview/)** - runs in your browser, no key
+
 ## What it shows
 
 **Tokens are not words.** The panel shows every token with its id, marks continuations with
