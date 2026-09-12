@@ -47,3 +47,14 @@ test("a model that will not load says so, and says it where you clicked", async 
   // A failure must not leave the page looking like it worked.
   await expect(page.getByRole("heading", { name: "What it reads" })).toBeHidden();
 });
+
+test("the server under test is this app, not another app on the same port", async ({ page }) => {
+  await page.goto("/");
+  /*
+   * playwright.config.ts reuses a server that is already listening, so a port two projects
+   * share means one project's running preview quietly answers the other's tests. That has
+   * happened here twice, and once it produced a completely green run against the wrong page.
+   * Ports are unique now; this is what catches the next way it goes wrong.
+   */
+  await expect(page).toHaveTitle(/^tokenview/);
+});
