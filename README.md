@@ -37,12 +37,23 @@ somewhere among them.
 That clustering is the check that the projection is honest. If related words did not group,
 the map would be decoration.
 
+Both axes are ruled in component units and labelled with the share of the variance they
+carry, so a distance on the map is a distance you can read off rather than one you have to
+take on trust. The cross marks the corpus mean, which every coordinate is measured from.
+
+**Two sentences can be compared.** Type a second one and the cosine between the two
+embeddings is drawn on its own scale, which runs from -1 to 1 rather than filling a bar from
+the left: 0 and -0.4 are different readings and they should not look the same.
+
+![The similarity scale, with the reading marked against ticks from minus one to one](docs/similarity.png)
+
 ## Limitations
 
 The map says how much variance the two visible axes carry, and it is usually **under 20%**.
 Two points close together in 384 dimensions will be close here, but the reverse does not
 hold: the projection can flatten unrelated things onto the same spot. The percentage is
-printed so you know how much to trust what you are looking at.
+printed above the map, next to a track showing how little of the whole it is, so you know how
+much to trust what you are looking at.
 
 The tokenizer is this model's. Another model splits differently, so the counts illustrate how
 tokenization behaves rather than billing a specific API.

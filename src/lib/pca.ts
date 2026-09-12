@@ -129,13 +129,30 @@ export function pca2(rows: Float32Array[]): Projection {
   return { points: xs.map((x, i) => ({ x, y: ys[i]! })), explained };
 }
 
+/**
+ * A projection placed in a viewport, and the mapping that placed it.
+ *
+ * The mapping is returned rather than thrown away because the plot is drawn with axes: a
+ * gridline at PC1 = -0.2 needs the same transform the dots went through, and recomputing it
+ * beside the caller is how a gridline ends up half a pixel out from the data it rules.
+ */
+export interface Fitted {
+  points: { x: number; y: number }[];
+  /** Pixels per unit of component space. One number, because both axes share a scale. */
+  scale: number;
+  /** Component value to pixel, per axis. The y axis is flipped; these hide that. */
+  px: (v: number) => number;
+  py: (v: number) => number;
+  /** The component-space interval each pixel axis spans, low end first. */
+  domain: { x: [number, number]; y: [number, number] };
+}
+
 /** Scale a projection into a viewport, preserving aspect so distances stay comparable. */
-export function fit(points: { x: number; y: number }[], w: number, h: number, pad = 28) {
-  if (points.length === 0) return [];
+export function fit(points: { x: number; y: number }[], w: number, h: number, pad = 28): Fitted {
   const xs = points.map((p) => p.x);
   const ys = points.map((p) => p.y);
-  const minX = Math.min(...xs), maxX = Math.max(...xs);
-  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const minX = points.length ? Math.min(...xs) : 0, maxX = points.length ? Math.max(...xs) : 0;
+  const minY = points.length ? Math.min(...ys) : 0, maxY = points.length ? Math.max(...ys) : 0;
   const spanX = maxX - minX || 1;
   const spanY = maxY - minY || 1;
   // One scale for both axes. Scaling them independently would stretch the space and make
@@ -143,8 +160,57 @@ export function fit(points: { x: number; y: number }[], w: number, h: number, pa
   const scale = Math.min((w - pad * 2) / spanX, (h - pad * 2) / spanY);
   const offX = (w - spanX * scale) / 2;
   const offY = (h - spanY * scale) / 2;
-  return points.map((p) => ({
-    x: (p.x - minX) * scale + offX,
-    y: h - ((p.y - minY) * scale + offY),
-  }));
+  const px = (v: number) => (v - minX) * scale + offX;
+  const py = (v: number) => h - ((v - minY) * scale + offY);
+  // Inverses of px and py at the two pixel edges, so a caller asking "what value is at the
+  // left of the plot" gets the answer from the same constants the dots used.
+  const vx = (p: number) => (p - offX) / scale + minX;
+  const vy = (p: number) => (h - p - offY) / scale + minY;
+  return {
+    points: points.map((p) => ({ x: px(p.x), y: py(p.y) })),
+    scale,
+    px,
+    py,
+    domain: { x: [vx(0), vx(w)], y: [vy(h), vy(0)] },
+  };
+}
+
+/**
+ * Round values to rule an axis with, covering [min, max].
+ *
+ * Steps come from 1, 2 or 5 times a power of ten, which is the set people read without
+ * doing arithmetic: an axis ruled every 0.037 is technically evenly spaced and nobody can
+ * use it. `count` is a target, not a promise - snapping the step to a round number is the
+ * whole point, and that necessarily changes how many fit.
+ */
+export function ticks(min: number, max: number, count = 5): number[] {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || count < 1) return [];
+  if (min > max) [min, max] = [max, min];
+  // A degenerate range has one value in it, and that value is the only honest tick.
+  if (max - min < 1e-12) return [min];
+  const raw = (max - min) / count;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
+  /*
+   * The NEAREST round step, not the smallest one that is big enough.
+   *
+   * Always rounding up overshoots by as much as 2.5x, and on a short axis that is the
+   * difference between five gridlines and two: the vertical axis of this plot is the short
+   * one, and it came out ruled twice. The thresholds are the geometric midpoints between
+   * 1, 2, 5 and 10, so each candidate wins the range it is genuinely closest to in the
+   * ratio sense, which is the sense a log scale of magnitudes is measured in.
+   */
+  const error = raw / magnitude;
+  const step =
+    magnitude * (error >= Math.sqrt(50) ? 10 : error >= Math.sqrt(10) ? 5 : error >= Math.sqrt(2) ? 2 : 1);
+  const out: number[] = [];
+  // Multiply rather than accumulate. Repeated addition compounds its own rounding error, so
+  // the last tick of a long axis is the one that lands off its gridline.
+  for (let i = Math.ceil(min / step); i * step <= max + 1e-12; i++) out.push(i * step);
+  return out;
+}
+
+/** Decimals needed to tell one tick from the next, so an axis is not ruled 0.0, 0.0, 0.0. */
+export function tickDecimals(step: number): number {
+  if (!Number.isFinite(step) || step <= 0) return 0;
+  return Math.max(0, Math.ceil(-Math.log10(step)));
 }
