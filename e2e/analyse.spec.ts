@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { describeFailures, probeContrast } from "./contrast-probe.js";
+import themes from "../src/theme/palettes.json" with { type: "json" };
 
 /**
  * The lane that loads the real model.
@@ -177,7 +178,7 @@ test.describe("@model", () => {
     // The fast lane measures the page as it opens. This state has a token strip, axis labels,
     // a key and a similarity scale that do not exist there, and they are drawn on --raised and
     // on mixed surfaces rather than on the page - which is where the last failure was hiding.
-    const probe = await probeContrast(page);
+    const probe = await probeContrast(page, themes);
 
     expect(probe.styles).toBeGreaterThan(20);
     // Named by class, not by copy: every h2 on the page shares one style, so they dedupe to
