@@ -28,7 +28,7 @@
   --panel: hsl(335 23.6% 99.5%);
   --raised: hsl(335 15.4% 94%);
   --accent: #c2477a;
-  --accent-2: #6f7fc2;
+  --accent-2: #5467b7;
   --fg: #2a1f38;
   --dim: #7e6288;
   --edge: #d9bcd9;
@@ -68,7 +68,7 @@
   --panel: hsl(231 45.1% 99.5%);
   --raised: hsl(231 29.4% 94%);
   --accent: #6f7fd6;
-  --accent-2: #c26bab;
+  --accent-2: #aa4690;
   --fg: #221f3c;
   --dim: #6a64a2;
   --edge: #c0bce8;
@@ -88,7 +88,7 @@
   --panel: hsl(37 17.6% 99.5%);
   --raised: hsl(37 11.5% 94%);
   --accent: #e0a13f;
-  --accent-2: #c2699e;
+  --accent-2: #b04785;
   --fg: #3a2540;
   --dim: #7b6b52;
   --edge: #e0d0b8;
@@ -128,7 +128,7 @@
   --panel: hsl(15 18.0% 99.5%);
   --raised: hsl(15 11.7% 94%);
   --accent: #d9663f;
-  --accent-2: #3f7fc7;
+  --accent-2: #346fb2;
   --fg: #1e2340;
   --dim: #88655a;
   --edge: #dec2b9;
@@ -148,7 +148,7 @@
   --panel: hsl(326 25.5% 99.5%);
   --raised: hsl(326 16.6% 94%);
   --accent: #d94f9e;
-  --accent-2: #6f8fd6;
+  --accent-2: #3d68c8;
   --fg: #3a1f34;
   --dim: #8f5c81;
   --edge: #e6bcd8;
@@ -208,7 +208,7 @@
   --panel: hsl(34 17.5% 99.5%);
   --raised: hsl(34 11.4% 94%);
   --accent: #e0932c;
-  --accent-2: #1c7a91;
+  --accent-2: #1b778e;
   --fg: #2a2013;
   --dim: #7d6b4f;
   --edge: #c2ac82;
@@ -228,7 +228,7 @@
   --panel: hsl(329 24.8% 99.5%);
   --raised: hsl(329 16.2% 94%);
   --accent: #e0559c;
-  --accent-2: #2a9a9a;
+  --accent-2: #217878;
   --fg: #1c2c1a;
   --dim: #826473;
   --edge: #d3a9be;
@@ -288,7 +288,7 @@
   --panel: hsl(257 41.5% 99.5%);
   --raised: hsl(257 27.0% 94%);
   --accent: #8b6fd1;
-  --accent-2: #3f9ecf;
+  --accent-2: #26729a;
   --fg: #221f3a;
   --dim: #6c659d;
   --edge: #c1bce6;
