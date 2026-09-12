@@ -1,3 +1,5 @@
+// Vendored from yozora/js/contrast-probe.ts. Refresh with `node scripts/vendor.mjs` there,
+// never edit here.
 import type { Page } from "@playwright/test";
 import themes from "../src/theme/palettes.json" with { type: "json" };
 
@@ -5,10 +7,18 @@ import themes from "../src/theme/palettes.json" with { type: "json" };
  * Measure every piece of visible text on the page, in every palette, against the surface it
  * is actually painted on.
  *
- * One probe with two callers. The fast lane runs it on the page as it opens; the model lane
- * runs it again after an analysis, because that state has a token strip, a plot and an axis
- * on it that do not exist before. Neither state is a subset of the other, and a colour is
- * only wrong in the place it lands.
+ * A palette check that reads the token files can only say the tokens are fine. What fails is
+ * never the token on its own: it is a --dim that clears --bg sitting on a chip painted
+ * --raised, or an option in a picker whose label was scoped to the palette it offers rather
+ * than the one on screen. Only a browser knows where a colour landed.
+ *
+ * Call it once per distinct STATE of the page, not once per page. A state with a table, a
+ * chart or a result in it has surfaces the empty state does not, and neither is a subset of
+ * the other.
+ *
+ *   const probe = await probeContrast(page);
+ *   expect(probe.styles).toBeGreaterThan(9);          // it measured something
+ *   expect(probe.failures, describeFailures(probe.failures)).toEqual([]);
  */
 
 export const AA_TEXT = 4.5;
