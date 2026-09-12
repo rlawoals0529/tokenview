@@ -4,6 +4,7 @@ import { pca2, fit } from "./lib/pca.js";
 import { labelWidth, placeLabels } from "./lib/labels.js";
 import { Ticker, stagger } from "./lib/motion.js";
 import type { Token, Progress } from "./lib/model.js";
+import { Palette } from "./Palette";
 
 const PRESETS: { label: string; text: string; why: string }[] = [
   { label: "a leading space counts", text: "cat  cat", why: "The same word costs different tokens depending on what precedes it." },
@@ -312,6 +313,7 @@ export default function App() {
           counts as an illustration of how tokenization behaves, not as a bill for a specific API.
         </p>
       </section>
+      <Palette />
     </div>
   );
 }
