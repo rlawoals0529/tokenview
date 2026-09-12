@@ -26,5 +26,8 @@ test("no text on the page is below AA contrast, in any palette", async ({ page }
   expect(probe.measured).toBeGreaterThan(140);
   expect(probe.samples.some((t) => t.startsWith("Runs entirely in your browser"))).toBe(true);
 
+  // The sweep has to have actually swept. Fewer distinct paintings than palettes means some
+  // of them never applied, and those numbers are another palette measured twice.
+  expect(probe.distinctPalettes, "some palettes painted nothing of their own").toBe(themes.length);
   expect(probe.failures, describeFailures(probe.failures)).toEqual([]);
 });

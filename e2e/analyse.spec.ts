@@ -185,6 +185,9 @@ test.describe("@model", () => {
     // a single row and asserting on a heading's words checks whichever happens to be first.
     expect(probe.classes).toContain("text.tick tick-x");
     expect(probe.classes).toContain("SPAN.readout-k");
-    expect(probe.failures, describeFailures(probe.failures)).toEqual([]);
+    // The sweep has to have actually swept. Fewer distinct paintings than palettes means some
+  // of them never applied, and those numbers are another palette measured twice.
+  expect(probe.distinctPalettes, "some palettes painted nothing of their own").toBe(themes.length);
+  expect(probe.failures, describeFailures(probe.failures)).toEqual([]);
   });
 });
